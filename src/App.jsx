@@ -1,0 +1,40 @@
+import Navbar from './components/Navbar.jsx'
+import Hero from './components/Hero.jsx'
+import BenefitsStrip from './components/BenefitsStrip.jsx'
+import WhatIsPilates from './components/WhatIsPilates.jsx'
+import StoryTabs from './components/StoryTabs.jsx'
+import Partners from './components/Partners.jsx'
+import HowItWorks from './components/HowItWorks.jsx'
+import Pricing from './components/Pricing.jsx'
+import Gallery from './components/Gallery.jsx'
+import Testimonials from './components/Testimonials.jsx'
+import LeadForm from './components/LeadForm.jsx'
+import FAQ from './components/FAQ.jsx'
+import Location from './components/Location.jsx'
+import Footer from './components/Footer.jsx'
+import MobileCTA from './components/MobileCTA.jsx'
+import { testimonials } from './data/site.js'
+
+export default function App() {
+  return (
+    <>
+      <Navbar />
+      <main id="conteudo">
+        <Hero />
+        <BenefitsStrip />
+        <WhatIsPilates />
+        <StoryTabs />
+        <Partners />
+        <HowItWorks />
+        <Pricing />
+        <Gallery />
+        {testimonials.length > 0 && <Testimonials />}
+        <LeadForm />
+        <FAQ />
+        <Location />
+      </main>
+      <Footer />
+      <MobileCTA />
+    </>
+  )
+}

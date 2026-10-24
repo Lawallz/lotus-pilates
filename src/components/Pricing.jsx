@@ -7,14 +7,14 @@ import Button from './ui/Button.jsx'
 import SpotlightCard from './ui/SpotlightCard.jsx'
 import { planFrequencies, plans, whatsappLink } from '../data/site.js'
 
-const brl = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+const brl = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 function FrequencySwitch({ value, onChange }) {
   return (
     <div
       role="radiogroup"
       aria-label="Frequência semanal"
-      className="mx-auto mt-10 flex w-fit rounded-full bg-white p-1.5 shadow-card ring-1 ring-sage-100"
+      className="mx-auto mt-10 flex w-full max-w-lg rounded-full bg-white p-1.5 shadow-card ring-1 ring-sage-100"
     >
       {planFrequencies.map((f) => {
         const selected = f.id === value
@@ -24,7 +24,7 @@ function FrequencySwitch({ value, onChange }) {
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(f.id)}
-            className={`relative rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
+            className={`relative flex-1 rounded-full px-2 py-2.5 text-xs sm:px-5 sm:text-sm font-semibold transition-colors ${
               selected ? 'text-white' : 'text-navy-700 hover:bg-sage-50 active:bg-sage-100'
             }`}
           >
@@ -35,7 +35,7 @@ function FrequencySwitch({ value, onChange }) {
                 transition={{ type: 'spring', stiffness: 380, damping: 32 }}
               />
             )}
-            <span className="relative z-10">{f.label}</span>
+            <span className="relative z-10 block">{f.name}<span className="mt-0.5 block text-xs font-normal">{f.label}</span></span>
           </button>
         )
       })}
@@ -44,7 +44,7 @@ function FrequencySwitch({ value, onChange }) {
 }
 
 function PlanCard({ plan, freq, baseline }) {
-  // `prices` pode ser null (sob consulta), { unico: N } ou { '2x': N, '3x': N }
+  // Valores mensais por frequência semanal.
   const price = plan.prices ? plan.prices[freq] ?? plan.prices.unico : null
   const saving = price != null && baseline != null ? baseline - price : 0
   const pop = plan.popular
@@ -74,7 +74,7 @@ function PlanCard({ plan, freq, baseline }) {
             initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.35 }}
-            className="font-display text-5xl font-semibold"
+            className="font-display text-4xl font-semibold"
           >
             {brl(price)}
           </motion.span>
@@ -134,7 +134,7 @@ function PlanCard({ plan, freq, baseline }) {
 export default function Pricing() {
   const [freq, setFreq] = useState(planFrequencies[0].id)
   const hasPrices = plans.some((p) => p.prices)
-  // O switch 2x/3x só faz sentido se algum plano tiver preços por frequência
+  // Exibe as frequências disponíveis nos planos.
   const hasFrequency = plans.some((p) => p.prices && p.prices['2x'] != null)
 
   return (
@@ -143,7 +143,7 @@ export default function Pricing() {
         <SectionHeading
           eyebrow="Planos"
           title="Escolha o ritmo ideal para você"
-          subtitle="Escolha o plano que melhor se encaixa na sua rotina. Fale com a gente para receber valores e condições."
+          subtitle="Cuidar, Fortalecer ou Renovar: escolha sua frequência e compare os valores mensais de cada plano."
         />
         {hasFrequency && (
           <Reveal>
@@ -151,7 +151,7 @@ export default function Pricing() {
           </Reveal>
         )}
 
-        <div className="mx-auto mt-14 grid max-w-5xl gap-8 lg:grid-cols-3 lg:items-center">
+        <div className="mx-auto mt-14 grid max-w-7xl gap-8 md:grid-cols-2 xl:grid-cols-4 xl:items-center">
           {plans.map((plan, i) => (
             <Reveal key={plan.id} delay={i * 0.1} className="h-full">
               <PlanCard plan={plan} freq={freq} baseline={plans[0].prices ? plans[0].prices[freq] ?? plans[0].prices.unico : null} />

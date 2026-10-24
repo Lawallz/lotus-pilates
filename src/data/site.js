@@ -106,21 +106,19 @@ export const storyTabs = [
 ]
 
 export const partners = [
-  { name: 'Wellhub', note: 'antigo Gympass' },
-  { name: 'TotalPass', note: 'aceito' },
+  { name: 'Wellhub', note: 'Silver+' },
+  { name: 'TotalPass', note: 'TP3+' },
   { name: 'ClassPass', note: 'aceito' },
 ]
 
 // ---------------------------------------------------------------------
-// PLANOS — os valores ainda NÃO foram informados.
-// Quando tiver os preços, preencha `prices` (R$ por mês). Exemplos:
-//   prices: { '2x': 000, '3x': 000 }   → mostra o switch 2x/3x e a economia vs. 1º plano
-//   prices: { unico: 000 }             → mostra um único preço
-// Enquanto `prices` for null, o card mostra "Sob consulta".
+// PLANOS — valores mensais conforme a tabela do estúdio.
+// As frequências correspondem a Cuidar, Fortalecer e Renovar.
 // ---------------------------------------------------------------------
 export const planFrequencies = [
-  { id: '2x', label: '2x por semana' },
-  { id: '3x', label: '3x por semana' },
+  { id: '1x', label: '1x por semana', name: 'Cuidar' },
+  { id: '2x', label: '2x por semana', name: 'Fortalecer' },
+  { id: '3x', label: '3x por semana', name: 'Renovar' },
 ]
 
 const baseFeatures = [
@@ -133,24 +131,31 @@ export const plans = [
   {
     id: 'mensal',
     name: 'Mensal',
-    period: 'Pagamento mensal',
-    prices: null,
+    period: '4 semanas',
+    prices: { '1x': 230, '2x': 345, '3x': 437 },
     features: baseFeatures,
   },
   {
     id: 'trimestral',
     name: 'Trimestral',
-    period: 'Compromisso de 3 meses',
-    badge: 'Custo-benefício',
-    popular: true,
-    prices: null,
+    period: '12 semanas',
+    prices: { '1x': 220.80, '2x': 331.20, '3x': 419.52 },
     features: baseFeatures,
   },
   {
     id: 'semestral',
     name: 'Semestral',
-    period: 'Compromisso de 6 meses',
-    prices: null,
+    period: '24 semanas',
+    prices: { '1x': 207, '2x': 310.50, '3x': 393.30 },
+    features: baseFeatures,
+  },
+  {
+    id: 'anual',
+    name: 'Anual',
+    period: '48 semanas',
+    badge: 'Maior economia',
+    popular: true,
+    prices: { '1x': 195.50, '2x': 293.25, '3x': 371.45 },
     features: baseFeatures,
   },
 ]
@@ -278,6 +283,6 @@ export const faqs = [
   },
   {
     q: 'Quais são os valores dos planos?',
-    a: 'Chame no WhatsApp e enviaremos as opções de planos e valores disponíveis.',
+    a: 'Os planos estão na seção Planos: Cuidar (1x por semana), Fortalecer (2x) e Renovar (3x), nas opções mensal, trimestral, semestral e anual. Os valores mensais começam em R$ 195,50 no plano anual. Consulte condições e horários pelo WhatsApp.',
   },
 ]

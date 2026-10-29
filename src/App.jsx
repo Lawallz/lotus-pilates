@@ -13,6 +13,8 @@ import FAQ from './components/FAQ.jsx'
 import Location from './components/Location.jsx'
 import Footer from './components/Footer.jsx'
 import MobileCTA from './components/MobileCTA.jsx'
+import BeforeClass from './components/BeforeClass.jsx'
+import ContractPreview from './components/ContractPreview.jsx'
 import { testimonials } from './data/site.js'
 
 export default function App() {
@@ -29,6 +31,8 @@ export default function App() {
         <Pricing />
         <Gallery />
         {testimonials.length > 0 && <Testimonials />}
+        <BeforeClass />
+        <ContractPreview />
         <LeadForm />
         <FAQ />
         <Location />

@@ -9,6 +9,8 @@ export const studio = {
   shortName: 'Lotus',
   tagline: 'Cuidado que acolhe. Movimento que transforma.',
   instagram: 'lotusemmovimentopilatessp', // sem @
+  phone: '(11) 97438-5433',
+  email: 'lotusemovimentopilates@gmail.com',
 }
 
 // Link oficial de WhatsApp Business (wa.me/message/...).
@@ -25,6 +27,8 @@ export const navLinks = [
   { label: 'Planos', href: '#planos' },
   { label: 'Espaço', href: '#espaco' },
   { label: 'Dúvidas', href: '#duvidas' },
+  { label: 'Antes da aula', href: '#orientacoes' },
+  { label: 'Termo', href: '#termo' },
   { label: 'Como chegar', href: '#localizacao' },
 ]
 
@@ -78,7 +82,7 @@ export const storyTabs = [
     title: 'Nossa missão',
     showLogo: true,
     body: [
-      'Oferecer um Pilates acolhedor, que cuida de cada pessoa com atenção e técnica, para que o movimento se transforme em mais saúde, postura e qualidade de vida.',
+      'Promover saúde, equilíbrio e consciência corporal por meio do Método Pilates, com atendimento personalizado, técnico e humanizado, para que cada pessoa floresça com segurança e bem-estar.',
     ],
   },
   {
@@ -87,10 +91,11 @@ export const storyTabs = [
     icon: 'Heart',
     title: 'No que acreditamos',
     values: [
-      { name: 'Acolhimento', text: 'Você é recebido como é, sem julgamentos.' },
-      { name: 'Cuidado', text: 'Atenção a cada pessoa e a cada movimento.' },
-      { name: 'Transformação', text: 'Pequenos hábitos que mudam a rotina.' },
-      { name: 'Respeito', text: 'Ao seu corpo, ao seu tempo e aos seus limites.' },
+      { name: 'Excelência', text: 'Aperfeiçoamento contínuo e atenção aos detalhes.' },
+      { name: 'Ética', text: 'Responsabilidade profissional em cada atendimento.' },
+      { name: 'Individualidade', text: 'Respeito ao corpo, ao tempo e aos limites de cada pessoa.' },
+      { name: 'Acolhimento', text: 'Sensibilidade e cuidado em uma experiência humanizada.' },
+      { name: 'Harmonia', text: 'Integração entre corpo, mente e movimento.' },
     ],
   },
   {
@@ -99,11 +104,26 @@ export const storyTabs = [
     icon: 'Compass',
     title: 'Para onde vamos',
     body: [
-      'Ajudar cada aluno a se mover com mais leveza, sentir menos dores e ganhar disposição no dia a dia.',
-      'Ser um espaço de referência em cuidado e bem-estar para a nossa região.',
+      'Consolidar-se como referência em qualidade e cuidado na região da Paulicéia, em São Bernardo do Campo, reconhecida pela elegância no atendimento, pela precisão técnica e pela transformação genuína na vida de seus alunos.',
     ],
   },
 ]
+
+export const story = {
+  title: 'Nossa história',
+  paragraphs: [
+    'A Lotus e Movimento Pilates nasceu da amizade de longa data entre dois sócios, unidos pela confiança e pelo desejo de criar um espaço dedicado à saúde, ao bem-estar e à qualidade de vida.',
+    'A experiência em gestão e planejamento se uniu à formação profissional, ao conhecimento técnico e a uma forma acolhedora de cuidar. Dessa parceria surgiu um estúdio pensado para ir além da prática do Pilates: um ambiente onde cada pessoa é recebida com respeito, atenção e cuidado individualizado.',
+    'Cada detalhe — do espaço à estrutura e aos equipamentos — foi escolhido para oferecer conforto, segurança e uma experiência que reflita os valores da Lotus.',
+    'A flor de lótus representa pureza, renovação, equilíbrio, superação e transformação. Movimento traduz a essência do Pilates: controle, precisão, respiração, equilíbrio e fluidez. Juntos, os termos expressam nossa busca por consciência corporal e qualidade de vida.',
+  ],
+}
+
+export const contractPreview = {
+  title: 'Termo de adesão',
+  file: '/documentos/termo-lotus-planos.pdf',
+  note: 'Esta é uma cópia para consulta. A contratação deve ser feita com o quadro-resumo preenchido e a versão integral apresentada ao aluno antes do aceite.',
+}
 
 export const partners = [
   { name: 'Wellhub', note: 'Silver+' },
@@ -195,22 +215,25 @@ export const logo = { src: '/marca/logo-lotus.jpg', alt: 'Logotipo Lotus e Movim
 export const testimonials = []
 
 export const location = {
-  address: 'Rua Júlio de Mesquita, 648 — Sala 1',
+  address: 'Rua Júlio de Mesquita, 658 — Sala 1',
   district: 'Paulicéia, São Bernardo do Campo — SP',
   cep: '09691-000',
-  mapsQuery: 'Rua Júlio de Mesquita, 648, Paulicéia, São Bernardo do Campo, SP, 09691-000',
+  mapsQuery: 'Rua Júlio de Mesquita, 658, Paulicéia, São Bernardo do Campo, SP, 09691-000',
   perks: [
     { icon: 'MapPin', text: 'Sala 1, com entrada pelo hall' },
     { icon: 'Armchair', text: 'Hall de entrada com área de espera' },
     { icon: 'Snowflake', text: 'Ambiente climatizado' },
   ],
-  // Horários ainda não definidos: o card some enquanto for null.
+  // Horários ainda não informados pelo estúdio: o card some enquanto for null.
   // Para exibir: hours: [{ days: 'Segunda a Sexta', time: '00h00 – 00h00' }]
   hours: null,
   rules: [
-    'Chegue com 5 minutos de antecedência.',
-    'Use roupas confortáveis.',
-    'Informe lesões ou condições de saúde ao instrutor.',
+    'O agendamento prévio é obrigatório. Reserve pelo WhatsApp antes do check-in.',
+    'Use roupas leves e confortáveis, que permitam liberdade de movimento.',
+    'Use meias antiderrapantes próprias para Pilates. Consulte a equipe sobre a disponibilidade para compra no estúdio.',
+    'Chegue de 10 a 15 minutos antes do horário agendado.',
+    'Há água filtrada disponível durante sua permanência; mantenha-se hidratado.',
+    'Informe à equipe, antes da aula, condições de saúde, gestação, restrições, lesões ou uso contínuo de medicação.',
   ],
 }
 
@@ -258,7 +281,7 @@ export const steps = [
 
 export const goals = ['Aliviar dores', 'Melhorar a postura', 'Ganhar flexibilidade', 'Fortalecer o corpo', 'Reduzir o estresse']
 export const periods = ['Manhã', 'Tarde', 'Noite']
-export const payments = ['Plano do estúdio', 'Wellhub', 'TotalPass', 'ClassPass']
+export const payments = ['Pix', 'Débito', 'Crédito', 'Wellhub', 'TotalPass', 'ClassPass']
 
 export const faqs = [
   {
@@ -271,11 +294,11 @@ export const faqs = [
   },
   {
     q: 'Como funciona com Wellhub, TotalPass e ClassPass?',
-    a: 'Aceitamos os três. Informe qual plano você usa ao falar com a gente e combinamos o agendamento. Confira com o seu aplicativo a categoria do seu plano.',
+    a: 'Aceitamos Wellhub, TotalPass e ClassPass. O agendamento prévio pelo WhatsApp é obrigatório. Antes de reservar, confirme no aplicativo da plataforma se o seu plano dá acesso ao estúdio e consulte a equipe sobre os horários disponíveis. Faça o check-in na plataforma conforme a orientação recebida.',
   },
   {
     q: 'Preciso levar algum equipamento?',
-    a: 'Apenas roupas confortáveis. Os aparelhos e acessórios ficam por conta do estúdio. Se tiver alguma orientação específica sobre meias ou calçados, avisaremos no agendamento.',
+    a: 'Use roupas leves e confortáveis e meias antiderrapantes próprias para Pilates. O estúdio disponibiliza os aparelhos, acessórios e água filtrada.',
   },
   {
     q: 'Posso praticar com dor nas costas, hérnia ou lesões?',

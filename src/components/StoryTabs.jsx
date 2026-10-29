@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import SectionHeading from './ui/SectionHeading.jsx'
 import Reveal from './ui/Reveal.jsx'
 import Icon from './ui/Icon.jsx'
-import { logo, storyTabs } from '../data/site.js'
+import { logo, story, storyTabs } from '../data/site.js'
 import WaveDivider from './ui/WaveDivider.jsx'
 
 export default function StoryTabs() {
@@ -26,6 +26,15 @@ export default function StoryTabs() {
           title="Missão, valores e objetivos"
           subtitle="Conheça o propósito que move o estúdio e os valores que guiam cada aula."
         />
+
+        <Reveal className="mx-auto mt-8 max-w-4xl rounded-[2rem] bg-white p-7 shadow-card ring-1 ring-sage-100 sm:p-10">
+          <p className="eyebrow">Nossa história e o nome Lotus</p>
+          <h3 className="mt-2 font-display text-3xl font-semibold text-navy-900">{story.title}</h3>
+          <div className="mt-4 space-y-4 text-base leading-relaxed text-ink/75">
+            {story.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          </div>
+          <p className="mt-5 font-display text-xl italic text-navy-700">“Cuidado que acolhe. Movimento que transforma.”</p>
+        </Reveal>
 
         <Reveal className="mx-auto mt-12 max-w-4xl">
           {/* Abas: rolagem horizontal no mobile */}

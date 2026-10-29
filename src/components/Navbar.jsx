@@ -57,15 +57,15 @@ export default function Navbar() {
           </a>
 
           {/* Desktop */}
-          <ul className="hidden items-center gap-1 lg:flex">
+          <ul className="hidden min-w-0 items-center gap-0 lg:flex">
             {navLinks.map((l) => {
               const isActive = active === l.href.slice(1)
               return (
-                <li key={l.href}>
+                <li key={l.href} className="shrink-0">
                   <a
                     href={l.href}
                     aria-current={isActive ? 'true' : undefined}
-                    className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-sage-100 hover:text-navy-800 active:bg-sage-200 ${
+                    className={`relative whitespace-nowrap rounded-full px-2 py-2 text-xs font-medium transition-colors hover:bg-sage-100 hover:text-navy-800 active:bg-sage-200 xl:px-2.5 xl:text-sm ${
                       isActive ? 'text-navy-800' : 'text-ink/70'
                     }`}
                   >

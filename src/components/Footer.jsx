@@ -30,22 +30,22 @@ export default function Footer() {
           </div>
         </Reveal>
 
-        <div className="mt-16 flex flex-col items-center justify-between gap-6 border-t border-white/10 pt-8 text-sm sm:flex-row">
-          <a href="#topo" aria-label={`${studio.name} — voltar ao topo`}>
+        <div className="mt-16 grid items-center gap-7 border-t border-white/10 pt-8 text-sm sm:grid-cols-2 sm:gap-x-8 xl:grid-cols-[minmax(180px,1fr)_minmax(0,2fr)_minmax(230px,1fr)]">
+          <a href="#topo" aria-label={`${studio.name} — voltar ao topo`} className="justify-self-center sm:justify-self-start">
             <Logo tone="dark" />
           </a>
 
-          <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+          <ul className="grid grid-cols-2 justify-items-center gap-x-4 gap-y-3 text-center sm:col-span-2 sm:grid-cols-4 xl:col-span-1">
             {navLinks.map((l) => (
               <li key={l.href}>
-                <a href={l.href} className="text-sage-200 transition-colors hover:text-white active:text-sage-300">
+                <a href={l.href} className="whitespace-nowrap text-sage-200 transition-colors hover:text-white active:text-sage-300">
                   {l.label}
                 </a>
               </li>
             ))}
           </ul>
 
-          <div className="text-center text-sage-300 sm:text-right">
+          <div className="text-center text-sage-300 sm:col-start-2 sm:row-start-1 sm:text-right xl:col-start-3 xl:row-start-auto">
             <p>
               © {new Date().getFullYear()} {studio.name}
             </p>

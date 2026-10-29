@@ -18,6 +18,16 @@ import ContractPreview from './components/ContractPreview.jsx'
 import { testimonials } from './data/site.js'
 
 export default function App() {
+  const [isManagement, setIsManagement] = useState(window.location.hash === '#/gestao')
+
+  useEffect(() => {
+    const syncRoute = () => setIsManagement(window.location.hash === '#/gestao')
+    window.addEventListener('hashchange', syncRoute)
+    return () => window.removeEventListener('hashchange', syncRoute)
+  }, [])
+
+  if (isManagement) return <AdminDashboard onExit={() => { window.location.hash = '#topo' }} />
+
   return (
     <>
       <Navbar />
@@ -42,3 +52,5 @@ export default function App() {
     </>
   )
 }
+import { useEffect, useState } from 'react'
+import AdminDashboard from './components/AdminDashboard.jsx'

@@ -61,6 +61,7 @@ export default function Footer() {
               </a>{' '}
               · {building.description}
             </p>
+            <a href="#/gestao" className="mt-2 inline-block text-[11px] text-sage-300/70 underline-offset-2 hover:text-white hover:underline">Prévia do painel de gestão</a>
           </div>
         </div>
       </div>

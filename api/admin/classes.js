@@ -1,7 +1,9 @@
-import { db, methodNotAllowed, parseBody, requireAdmin } from '../_lib/admin.js'
+import { db, methodNotAllowed, parseBody, requireAdmin, requireStaff } from '../_lib/admin.js'
 
 export default async function handler(req, res) {
-  const user = await requireAdmin(req, res)
+  const user = req.method === 'GET'
+    ? await requireStaff(req, res)
+    : await requireAdmin(req, res)
   if (!user) return
 
   if (req.method === 'GET') {
@@ -23,7 +25,7 @@ export default async function handler(req, res) {
        GROUP BY s.id
        ORDER BY s.starts_at ASC
        LIMIT 200`,
-      [from || null, to || null, instructor || null],
+      [from || null, to || null, user.role === 'instructor' ? user.instructorName : instructor || null],
     )
     return res.status(200).json({ classes: rows })
   }

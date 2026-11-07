@@ -28,7 +28,7 @@ function getJwks() {
   return jwks
 }
 
-export async function requireAdmin(req, res) {
+async function currentUser(req, res) {
   const authorization = req.headers.authorization || ''
   const match = authorization.match(/^Bearer\s+(.+)$/i)
   if (!match) {
@@ -41,18 +41,50 @@ export async function requireAdmin(req, res) {
     if (typeof payload.sub !== 'string') throw new Error('Missing subject')
 
     const { rows } = await getPool().query(
-      'SELECT role, banned FROM neon_auth."user" WHERE id = $1::uuid LIMIT 1',
+      'SELECT id, email, role, banned FROM neon_auth."user" WHERE id = $1::uuid LIMIT 1',
       [payload.sub],
     )
 
-    if (!rows[0] || rows[0].role !== 'admin' || rows[0].banned === true) {
+    if (!rows[0] || rows[0].banned === true) {
       res.status(403).json({ error: 'Esta conta não tem acesso à gestão da Lotus.' })
       return null
     }
 
-    return { userId: payload.sub }
+    return rows[0]
   } catch {
     res.status(401).json({ error: 'Sua sessão expirou. Entre novamente.' })
+    return null
+  }
+}
+
+export async function requireAdmin(req, res) {
+  const user = await currentUser(req, res)
+  if (!user) return null
+  if (user.role !== 'admin') {
+    res.status(403).json({ error: 'Esta conta não tem acesso administrativo.' })
+    return null
+  }
+  return { userId: user.id, email: user.email, role: 'admin' }
+}
+
+export async function requireStaff(req, res) {
+  const user = await currentUser(req, res)
+  if (!user) return null
+  if (user.role === 'admin') return { userId: user.id, email: user.email, role: 'admin' }
+
+  try {
+    const { rows } = await getPool().query(
+      `SELECT instructor_name FROM public.studio_staff
+       WHERE user_id = $1::uuid AND active = true AND role = 'instructor' LIMIT 1`,
+      [user.id],
+    )
+    if (!rows[0]) {
+      res.status(403).json({ error: 'Esta conta não tem acesso à gestão da Lotus.' })
+      return null
+    }
+    return { userId: user.id, email: user.email, role: 'instructor', instructorName: rows[0].instructor_name }
+  } catch {
+    res.status(503).json({ error: 'Não foi possível carregar as permissões da equipe.' })
     return null
   }
 }

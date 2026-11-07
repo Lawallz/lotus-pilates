@@ -1,8 +1,10 @@
 import { db, methodNotAllowed, parseBody, requireAdmin } from '../_lib/admin.js'
+import { offerAvailableSeats } from '../_lib/waitlist.js'
 
 const bookingSelect = `SELECT b.id, b.class_session_id, b.client_id, b.source, b.status,
                               b.booked_at, b.cancelled_at, c.full_name AS client_name,
-                              s.title AS class_title, s.starts_at
+                              s.title AS class_title, s.starts_at, s.ends_at,
+                              s.instructor_name
                        FROM public.class_bookings b
                        JOIN public.studio_clients c ON c.id = b.client_id
                        JOIN public.class_sessions s ON s.id = b.class_session_id`
@@ -45,9 +47,46 @@ export default async function handler(req, res) {
     if (!id || !['confirmed', 'cancelled', 'attended', 'no_show'].includes(status)) {
       return res.status(400).json({ error: 'Situação da reserva inválida.' })
     }
+    if (status === 'cancelled') {
+      const client = await db().connect()
+      try {
+        await client.query('BEGIN')
+        const { rows: sessionRows } = await client.query(
+          `SELECT s.id AS class_session_id FROM public.class_bookings b
+           JOIN public.class_sessions s ON s.id = b.class_session_id
+           WHERE b.id = $1::uuid FOR UPDATE OF s`,
+          [id],
+        )
+        if (!sessionRows[0]) {
+          await client.query('ROLLBACK')
+          return res.status(404).json({ error: 'Reserva não encontrada.' })
+        }
+        const { rows } = await client.query(
+          `UPDATE public.class_bookings
+           SET status = 'cancelled', cancelled_at = now()
+           WHERE id = $1::uuid AND status IN ('confirmed', 'attended', 'no_show')
+           RETURNING id`,
+          [id],
+        )
+        if (!rows[0]) {
+          await client.query('ROLLBACK')
+          return res.status(409).json({ error: 'Essa reserva já foi cancelada.' })
+        }
+        const offers = await offerAvailableSeats(client, sessionRows[0].class_session_id)
+        await client.query('COMMIT')
+        const booking = await client.query(`${bookingSelect} WHERE b.id = $1`, [id])
+        return res.status(200).json({ booking: booking.rows[0], offers })
+      } catch (error) {
+        await client.query('ROLLBACK')
+        throw error
+      } finally {
+        client.release()
+      }
+    }
+
     const { rows } = await db().query(
       `UPDATE public.class_bookings
-       SET status = $2, cancelled_at = CASE WHEN $2 = 'cancelled' THEN now() ELSE NULL END
+       SET status = $2, cancelled_at = NULL
        WHERE id = $1::uuid
        RETURNING id`,
       [id, status],

@@ -16,6 +16,7 @@ import MobileCTA from './components/MobileCTA.jsx'
 import BeforeClass from './components/BeforeClass.jsx'
 import ContractPreview from './components/ContractPreview.jsx'
 import { testimonials } from './data/site.js'
+import AdminAccess from './components/AdminAccess.jsx'
 
 export default function App() {
   const [isManagement, setIsManagement] = useState(window.location.hash === '#/gestao')
@@ -26,7 +27,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', syncRoute)
   }, [])
 
-  if (isManagement) return <AdminDashboard onExit={() => { window.location.hash = '#topo' }} />
+  if (isManagement) return <AdminAccess onExit={() => { window.location.hash = '#topo' }} />
 
   return (
     <>
@@ -53,4 +54,3 @@ export default function App() {
   )
 }
 import { useEffect, useState } from 'react'
-import AdminDashboard from './components/AdminDashboard.jsx'

@@ -84,17 +84,14 @@ BEGIN
 END;
 $$;
 
-DROP TRIGGER IF EXISTS studio_clients_set_updated_at ON public.studio_clients;
 CREATE TRIGGER studio_clients_set_updated_at
   BEFORE UPDATE ON public.studio_clients
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
-DROP TRIGGER IF EXISTS class_sessions_set_updated_at ON public.class_sessions;
 CREATE TRIGGER class_sessions_set_updated_at
   BEFORE UPDATE ON public.class_sessions
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
-DROP TRIGGER IF EXISTS class_bookings_set_updated_at ON public.class_bookings;
 CREATE TRIGGER class_bookings_set_updated_at
   BEFORE UPDATE ON public.class_bookings
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
@@ -158,7 +155,7 @@ BEGIN
   SELECT count(*) INTO v_active_count
   FROM public.class_bookings
   WHERE class_session_id = p_class_session_id
-    AND status = 'confirmed';
+    AND status IN ('confirmed', 'attended', 'no_show');
 
   IF v_active_count >= v_capacity THEN
     RAISE EXCEPTION 'Class session is full'

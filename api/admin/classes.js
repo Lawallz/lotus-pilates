@@ -1,4 +1,4 @@
-import { db, methodNotAllowed, parseBody, requireAdmin, requireStaff } from '../_lib/admin.js'
+import { db, methodNotAllowed, parseBody, recordAudit, requireAdmin, requireStaff } from '../_lib/admin.js'
 
 export default async function handler(req, res) {
   const user = req.method === 'GET'
@@ -71,6 +71,9 @@ export default async function handler(req, res) {
         created.push({ ...rows[0], booked: 0, waitlist_count: 0 })
       }
       await client.query('COMMIT')
+      await recordAudit(user, 'class.created', 'class_session', created[0]?.id, {
+        title: title.trim(), instructor: instructor_name.trim(), count: created.length,
+      })
       return res.status(201).json({ classes: created, count: created.length })
     } catch (error) {
       await client.query('ROLLBACK')

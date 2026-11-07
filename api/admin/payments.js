@@ -1,4 +1,4 @@
-import { db, methodNotAllowed, parseBody, requireAdmin } from '../_lib/admin.js'
+import { db, methodNotAllowed, parseBody, recordAudit, requireAdmin } from '../_lib/admin.js'
 
 const paymentSelect = `SELECT p.id, p.client_id, p.amount, p.due_date, p.paid_at,
                               CASE WHEN p.status = 'pending' AND p.due_date < current_date
@@ -33,6 +33,7 @@ export default async function handler(req, res) {
        RETURNING id, client_id, amount, due_date, status, method, notes`,
       [client_id, numericAmount, due_date, method, notes],
     )
+    await recordAudit(user, 'payment.created', 'payment', rows[0].id, { amount: rows[0].amount, dueDate: rows[0].due_date })
     return res.status(201).json({ payment: rows[0] })
   }
 
@@ -50,6 +51,7 @@ export default async function handler(req, res) {
       [id, status, method || ''],
     )
     if (!rows[0]) return res.status(404).json({ error: 'Pagamento não encontrado.' })
+    await recordAudit(user, `payment.${status}`, 'payment', rows[0].id, { amount: rows[0].amount, dueDate: rows[0].due_date })
     return res.status(200).json({ payment: rows[0] })
   }
 

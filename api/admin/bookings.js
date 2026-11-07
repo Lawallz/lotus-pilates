@@ -1,4 +1,4 @@
-import { db, methodNotAllowed, parseBody, requireAdmin, requireStaff } from '../_lib/admin.js'
+import { db, methodNotAllowed, parseBody, recordAudit, requireAdmin, requireStaff } from '../_lib/admin.js'
 import { offerAvailableSeats } from '../_lib/waitlist.js'
 
 const bookingSelect = `SELECT b.id, b.class_session_id, b.client_id, b.source, b.status,
@@ -37,6 +37,9 @@ export default async function handler(req, res) {
         [client_id, class_session_id, source, source_booking_ref],
       )
       const booking = await db().query(`${bookingSelect} WHERE b.id = $1`, [rows[0].id])
+      await recordAudit(user, 'booking.created', 'booking', booking.rows[0]?.id, {
+        client: booking.rows[0]?.client_name, classTitle: booking.rows[0]?.class_title, source,
+      })
       return res.status(201).json({ booking: booking.rows[0] })
     } catch (error) {
       if (['23514', '23505', '55000'].includes(error.code)) {
@@ -68,6 +71,9 @@ export default async function handler(req, res) {
       )
       if (!rows[0]) return res.status(404).json({ error: 'Reserva não encontrada na sua agenda.' })
       const booking = await db().query(`${bookingSelect} WHERE b.id = $1`, [id])
+      await recordAudit(user, `booking.${status}`, 'booking', id, {
+        client: booking.rows[0]?.client_name, classTitle: booking.rows[0]?.class_title,
+      })
       return res.status(200).json({ booking: booking.rows[0] })
     }
     if (status === 'cancelled') {
@@ -98,6 +104,9 @@ export default async function handler(req, res) {
         const offers = await offerAvailableSeats(client, sessionRows[0].class_session_id)
         await client.query('COMMIT')
         const booking = await client.query(`${bookingSelect} WHERE b.id = $1`, [id])
+        await recordAudit(user, 'booking.cancelled', 'booking', id, {
+          client: booking.rows[0]?.client_name, classTitle: booking.rows[0]?.class_title,
+        })
         return res.status(200).json({ booking: booking.rows[0], offers })
       } catch (error) {
         await client.query('ROLLBACK')
@@ -116,6 +125,9 @@ export default async function handler(req, res) {
     )
     if (!rows[0]) return res.status(404).json({ error: 'Reserva não encontrada.' })
     const booking = await db().query(`${bookingSelect} WHERE b.id = $1`, [id])
+    await recordAudit(user, `booking.${status}`, 'booking', id, {
+      client: booking.rows[0]?.client_name, classTitle: booking.rows[0]?.class_title,
+    })
     return res.status(200).json({ booking: booking.rows[0] })
   }
 

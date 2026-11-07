@@ -93,6 +93,20 @@ export function db() {
   return getPool()
 }
 
+export async function recordAudit(user, action, entityType, entityId, details = {}) {
+  try {
+    await db().query(
+      `INSERT INTO public.studio_audit_log
+         (actor_user_id, actor_email, action, entity_type, entity_id, details)
+       VALUES ($1::uuid, $2, $3, $4, $5, $6::jsonb)`,
+      [user.userId, user.email, action, entityType, entityId || null, JSON.stringify(details)],
+    )
+  } catch (error) {
+    // Audit logging must never turn a completed business operation into a failed response.
+    console.error('Audit log write failed:', error.message)
+  }
+}
+
 export function methodNotAllowed(res, allowed) {
   res.setHeader('Allow', allowed.join(', '))
   return res.status(405).json({ error: 'Método não permitido.' })

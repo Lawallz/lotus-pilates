@@ -1,4 +1,4 @@
-import { db, methodNotAllowed, parseBody, requireAdmin } from '../_lib/admin.js'
+import { db, methodNotAllowed, parseBody, recordAudit, requireAdmin } from '../_lib/admin.js'
 import { offerAvailableSeats } from '../_lib/waitlist.js'
 
 const waitlistSelect = `SELECT w.id, w.class_session_id, w.client_id, w.status,
@@ -59,6 +59,7 @@ export default async function handler(req, res) {
           [client_id, class_session_id],
         )
         await client.query('COMMIT')
+        await recordAudit(user, 'booking.created_from_waitlist', 'booking', rows[0].id, { clientId: client_id, classSessionId: class_session_id })
         return res.status(201).json({ booked: true, booking_id: rows[0].id, message: 'Havia uma vaga; a reserva foi confirmada.' })
       }
       const { rows } = await client.query(
@@ -68,6 +69,7 @@ export default async function handler(req, res) {
         [client_id, class_session_id],
       )
       await client.query('COMMIT')
+      await recordAudit(user, 'waitlist.added', 'waitlist', rows[0].id, { clientId: client_id, classSessionId: class_session_id })
       return res.status(201).json({ booked: false, waitlist: rows[0] })
     } catch (error) {
       await client.query('ROLLBACK')
@@ -111,6 +113,7 @@ export default async function handler(req, res) {
           [entries[0].client_id, entries[0].class_session_id],
         )
         await client.query('COMMIT')
+        await recordAudit(user, 'waitlist.converted', 'waitlist', id, { clientId: entries[0].client_id, classSessionId: entries[0].class_session_id })
         return res.status(200).json({ converted: true, booking_id: bookings[0].id })
       }
       await client.query(
@@ -118,6 +121,7 @@ export default async function handler(req, res) {
       )
       const offers = await offerAvailableSeats(client, entries[0].class_session_id)
       await client.query('COMMIT')
+      await recordAudit(user, 'waitlist.cancelled', 'waitlist', id, { clientId: entries[0].client_id, classSessionId: entries[0].class_session_id })
       return res.status(200).json({ cancelled: true, offers })
     } catch (error) {
       await client.query('ROLLBACK')

@@ -1,4 +1,4 @@
-import { db, methodNotAllowed, parseBody, requireAdmin } from '../_lib/admin.js'
+import { db, methodNotAllowed, parseBody, recordAudit, requireAdmin } from '../_lib/admin.js'
 
 export default async function handler(req, res) {
   const admin = await requireAdmin(req, res)
@@ -39,6 +39,7 @@ export default async function handler(req, res) {
        RETURNING user_id, role, instructor_name, active, created_at`,
       [users[0].id, name],
     )
+    await recordAudit(admin, 'staff.linked', 'staff', rows[0].user_id, { email: normalizedEmail, instructor: name })
     return res.status(201).json({ staff: { ...rows[0], email: normalizedEmail } })
   }
 
@@ -60,6 +61,9 @@ export default async function handler(req, res) {
     const { rows: users } = await db().query(
       'SELECT email FROM neon_auth."user" WHERE id = $1::uuid LIMIT 1', [user_id],
     )
+    await recordAudit(admin, active === undefined ? 'staff.renamed' : active ? 'staff.activated' : 'staff.suspended', 'staff', user_id, {
+      email: users[0]?.email || '', instructor: rows[0].instructor_name,
+    })
     return res.status(200).json({ staff: { ...rows[0], email: users[0]?.email || '' } })
   }
 

@@ -1,4 +1,4 @@
-import { db, methodNotAllowed, parseBody, requireAdmin } from '../_lib/admin.js'
+import { db, methodNotAllowed, parseBody, recordAudit, requireAdmin, requireStaff } from '../_lib/admin.js'
 import { offerAvailableSeats } from '../_lib/waitlist.js'
 
 const bookingSelect = `SELECT b.id, b.class_session_id, b.client_id, b.source, b.status,
@@ -10,12 +10,17 @@ const bookingSelect = `SELECT b.id, b.class_session_id, b.client_id, b.source, b
                        JOIN public.class_sessions s ON s.id = b.class_session_id`
 
 export default async function handler(req, res) {
-  const user = await requireAdmin(req, res)
+  const user = req.method === 'GET' || req.method === 'PATCH'
+    ? await requireStaff(req, res)
+    : await requireAdmin(req, res)
   if (!user) return
 
   if (req.method === 'GET') {
     const { rows } = await db().query(
-      `${bookingSelect} ORDER BY s.starts_at DESC, c.full_name LIMIT 500`,
+      `${bookingSelect}
+       WHERE ($1::text IS NULL OR s.instructor_name = $1::text)
+       ORDER BY s.starts_at DESC, c.full_name LIMIT 500`,
+      [user.role === 'instructor' ? user.instructorName : null],
     )
     return res.status(200).json({ bookings: rows })
   }
@@ -32,6 +37,9 @@ export default async function handler(req, res) {
         [client_id, class_session_id, source, source_booking_ref],
       )
       const booking = await db().query(`${bookingSelect} WHERE b.id = $1`, [rows[0].id])
+      await recordAudit(user, 'booking.created', 'booking', booking.rows[0]?.id, {
+        client: booking.rows[0]?.client_name, classTitle: booking.rows[0]?.class_title, source,
+      })
       return res.status(201).json({ booking: booking.rows[0] })
     } catch (error) {
       if (['23514', '23505', '55000'].includes(error.code)) {
@@ -46,6 +54,27 @@ export default async function handler(req, res) {
     const { id, status } = parseBody(req)
     if (!id || !['confirmed', 'cancelled', 'attended', 'no_show'].includes(status)) {
       return res.status(400).json({ error: 'Situação da reserva inválida.' })
+    }
+    if (user.role === 'instructor') {
+      if (!['attended', 'no_show'].includes(status)) {
+        return res.status(403).json({ error: 'Instrutoras só podem registrar presença ou falta.' })
+      }
+      const { rows } = await db().query(
+        `UPDATE public.class_bookings b
+         SET status = $2, cancelled_at = NULL
+         FROM public.class_sessions s
+         WHERE b.id = $1::uuid AND s.id = b.class_session_id
+           AND s.instructor_name = $3
+           AND b.status IN ('confirmed', 'attended', 'no_show')
+         RETURNING b.id`,
+        [id, status, user.instructorName],
+      )
+      if (!rows[0]) return res.status(404).json({ error: 'Reserva não encontrada na sua agenda.' })
+      const booking = await db().query(`${bookingSelect} WHERE b.id = $1`, [id])
+      await recordAudit(user, `booking.${status}`, 'booking', id, {
+        client: booking.rows[0]?.client_name, classTitle: booking.rows[0]?.class_title,
+      })
+      return res.status(200).json({ booking: booking.rows[0] })
     }
     if (status === 'cancelled') {
       const client = await db().connect()
@@ -75,6 +104,9 @@ export default async function handler(req, res) {
         const offers = await offerAvailableSeats(client, sessionRows[0].class_session_id)
         await client.query('COMMIT')
         const booking = await client.query(`${bookingSelect} WHERE b.id = $1`, [id])
+        await recordAudit(user, 'booking.cancelled', 'booking', id, {
+          client: booking.rows[0]?.client_name, classTitle: booking.rows[0]?.class_title,
+        })
         return res.status(200).json({ booking: booking.rows[0], offers })
       } catch (error) {
         await client.query('ROLLBACK')
@@ -93,6 +125,9 @@ export default async function handler(req, res) {
     )
     if (!rows[0]) return res.status(404).json({ error: 'Reserva não encontrada.' })
     const booking = await db().query(`${bookingSelect} WHERE b.id = $1`, [id])
+    await recordAudit(user, `booking.${status}`, 'booking', id, {
+      client: booking.rows[0]?.client_name, classTitle: booking.rows[0]?.class_title,
+    })
     return res.status(200).json({ booking: booking.rows[0] })
   }
 

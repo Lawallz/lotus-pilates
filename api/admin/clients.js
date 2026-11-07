@@ -1,4 +1,4 @@
-import { db, methodNotAllowed, parseBody, requireAdmin } from '../_lib/admin.js'
+import { db, methodNotAllowed, parseBody, recordAudit, requireAdmin } from '../_lib/admin.js'
 
 export default async function handler(req, res) {
   const user = await requireAdmin(req, res)
@@ -70,6 +70,7 @@ export default async function handler(req, res) {
         [name, normalizedEmail, normalizedPhone, typeof notes === 'string' ? notes.trim() : '',
           typeof plan_name === 'string' ? plan_name.trim() : '', planAmount, plan_status, next_payment_date || null],
       )
+      await recordAudit(user, 'client.created', 'client', rows[0].id, { name: rows[0].full_name })
       return res.status(201).json({ client: rows[0] })
     } catch (error) {
       if (error.code === '23505') return res.status(409).json({ error: 'Já existe um cliente com esse e-mail.' })
@@ -104,6 +105,7 @@ export default async function handler(req, res) {
           plan_status, next_payment_date || null, status],
       )
       if (!rows[0]) return res.status(404).json({ error: 'Cliente não encontrado.' })
+      await recordAudit(user, 'client.updated', 'client', rows[0].id, { name: rows[0].full_name, status: rows[0].status })
       return res.status(200).json({ client: rows[0] })
     } catch (error) {
       if (error.code === '23505') return res.status(409).json({ error: 'Já existe um cliente com esse e-mail.' })

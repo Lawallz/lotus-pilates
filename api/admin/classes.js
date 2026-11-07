@@ -5,15 +5,25 @@ export default async function handler(req, res) {
   if (!user) return
 
   if (req.method === 'GET') {
+    const from = req.query?.from
+    const to = req.query?.to
+    const instructor = req.query?.instructor
     const { rows } = await db().query(
       `SELECT s.id, s.title, s.instructor_name, s.starts_at, s.ends_at,
               s.capacity, s.status,
-              count(b.id) FILTER (WHERE b.status IN ('confirmed', 'attended', 'no_show'))::int AS booked
+              count(DISTINCT b.id) FILTER (WHERE b.status IN ('confirmed', 'attended', 'no_show'))::int
+                + count(DISTINCT w.id) FILTER (WHERE w.status = 'offered')::int AS booked,
+              count(DISTINCT w.id) FILTER (WHERE w.status = 'waiting')::int AS waitlist_count
        FROM public.class_sessions s
        LEFT JOIN public.class_bookings b ON b.class_session_id = s.id
+       LEFT JOIN public.class_waitlist w ON w.class_session_id = s.id
+       WHERE ($1::timestamptz IS NULL OR s.starts_at >= $1::timestamptz)
+         AND ($2::timestamptz IS NULL OR s.starts_at < $2::timestamptz)
+         AND ($3::text IS NULL OR s.instructor_name = $3::text)
        GROUP BY s.id
-       ORDER BY s.starts_at DESC
+       ORDER BY s.starts_at ASC
        LIMIT 200`,
+      [from || null, to || null, instructor || null],
     )
     return res.status(200).json({ classes: rows })
   }
@@ -38,7 +48,7 @@ export default async function handler(req, res) {
        RETURNING id, title, instructor_name, starts_at, ends_at, capacity, status`,
       [title.trim(), instructor_name.trim(), start.toISOString(), end.toISOString(), numericCapacity],
     )
-    return res.status(201).json({ class: { ...rows[0], booked: 0 } })
+    return res.status(201).json({ class: { ...rows[0], booked: 0, waitlist_count: 0 } })
   }
 
   return methodNotAllowed(res, ['GET', 'POST'])
